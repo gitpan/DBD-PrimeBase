@@ -132,7 +132,7 @@ PRIVATE void do_warn(SV* h, int rc, char* what) {
     sv_setpv(errstr, what);
     DBIh_EVENT2(h, WARN_event, DBIc_ERR(imp_xxh), errstr);
     if (dbis->debug >= 2)
-        fprintf(DBILOGFP, "%s warning %d recorded: %s\n", what, rc, SvPV(errstr,lna));
+        PerlIO_printf(DBILOGFP, "%s warning %d recorded: %s\n", what, rc, SvPV(errstr,lna));
     warn("%s", what);
 }
 
@@ -144,10 +144,10 @@ D_imp_xxh(h);
 SV *errstr = DBIc_ERRSTR(imp_xxh);
 
 #ifdef DEBUG_IT
-	fprintf(DBILOGFP, "PrimeBase DBD Error: \"%s\"\n", what);
+	PerlIO_printf(DBILOGFP, "PrimeBase DBD Error: \"%s\"\n", what);
 #else
 	if (DBIS->debug > 2) 
-		fprintf(DBILOGFP, "PrimeBase DBD Error: \"%s\"\n", what);
+		PerlIO_printf(DBILOGFP, "PrimeBase DBD Error: \"%s\"\n", what);
 #endif
 
 	sv_setiv(DBIc_ERR(imp_xxh), (IV)rc);
@@ -367,7 +367,7 @@ int i, rtc;
 		if (rtc != PB_OK) {
 			D_imp_dbh_from_sth;
 			if (DBIS->debug >= 2)
-				fprintf(DBILOGFP, "get_column_info:PBIColumnInfo() Failed\n");
+				PerlIO_printf(DBILOGFP, "get_column_info:PBIColumnInfo() Failed\n");
 				
 			free_column_info(sessid, cursor_id, info_list, num_columns);
 			pb_error(sth, imp_dbh);
@@ -405,7 +405,7 @@ int i, rtc;
 			if (rtc != PB_OK) {
 				D_imp_dbh_from_sth;
 				if (DBIS->debug >= 2)
-					fprintf(DBILOGFP, "get_column_info:PBIBindColumn() Failed inffo = %d\n", ptr->b_info);
+					PerlIO_printf(DBILOGFP, "get_column_info:PBIBindColumn() Failed inffo = %d\n", ptr->b_info);
 					
 				free_column_info(sessid, cursor_id, info_list, num_columns);
 				pb_error(sth, imp_dbh);
@@ -476,7 +476,7 @@ int rtc = FAILED;
 	ptr = dbname;
 	
 	if (DBIS->debug > 3) 
-		fprintf(DBILOGFP, "dbd_db_login(\"%s\", \"%s\", \"%s\" \n", (dbname)?dbname:"NULL", (uid)?uid:"NULL", (pwd)?pwd:"NULL");
+		PerlIO_printf(DBILOGFP, "dbd_db_login(\"%s\", \"%s\", \"%s\" \n", (dbname)?dbname:"NULL", (uid)?uid:"NULL", (pwd)?pwd:"NULL");
 	
 	while (*ptr && (*ptr != ';'))ptr++;
 	if (*ptr) {
@@ -496,7 +496,7 @@ int rtc = FAILED;
 	
 	if ( (!server) || (!*server) || (!database) || (!*database)) {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "dbd_db_login failed: Missing server and/or database name: \"%s\"\n", dbname);
+			PerlIO_printf(DBILOGFP, "dbd_db_login failed: Missing server and/or database name: \"%s\"\n", dbname);
 		
 		dbi_error(dbh, -1, "Bad dbname");
 		goto error;
@@ -513,7 +513,7 @@ int rtc = FAILED;
 	rtc = PBIConnect(&(imp_dbh->sessid), server, PB_DATA_SERVER, PB_TCP, ip_address, uid, pwd, database);
 	if (rtc != PB_OK) {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "PBIConnect failed: server = \"%s\",  ip_address = \"%s\",  uid = \"%s\",  pwd = \"%s\",  database = \"%s\"\n", server, ip_address, uid, pwd, database);
+			PerlIO_printf(DBILOGFP, "PBIConnect failed: server = \"%s\",  ip_address = \"%s\",  uid = \"%s\",  pwd = \"%s\",  database = \"%s\"\n", server, ip_address, uid, pwd, database);
 		pb_error(dbh, imp_dbh);
 		rtc =  FAILED;
 		goto error;
@@ -528,7 +528,7 @@ int rtc = FAILED;
 	rtc = PBIExecute(imp_dbh->sessid, table_info, PB_NTS, PB_EXECUTE_NOW, NULL, NULL, NULL);
 	if (rtc != PB_OK) {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "dbd_db_login:PBIExecute failed. Could not execute table_info procedure.\n");
+			PerlIO_printf(DBILOGFP, "dbd_db_login:PBIExecute failed. Could not execute table_info procedure.\n");
 		pb_error(dbh, imp_dbh);
 		rtc =  FAILED;
 	} else
@@ -538,7 +538,7 @@ int rtc = FAILED;
   	rtc = PBIExecute(imp_dbh->sessid, NewPerlDatabase, PB_NTS, PB_EXECUTE_NOW, NULL, NULL, NULL);
 	if (rtc != PB_OK) {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "dbd_db_login:PBIExecute failed. Could not execute NewPerlDatabase  procedure.\n");
+			PerlIO_printf(DBILOGFP, "dbd_db_login:PBIExecute failed. Could not execute NewPerlDatabase  procedure.\n");
 		pb_error(dbh, imp_dbh);
 		rtc =  FAILED;
 	} else
@@ -587,7 +587,7 @@ dTHR;
     if (trace_f) fprintf(trace_f,"commit;begin;\n");
 	if (rtc != PB_OK) {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "dbd_db_commit:PBIExecute failed.\n");
+			PerlIO_printf(DBILOGFP, "dbd_db_commit:PBIExecute failed.\n");
 		pb_error(dbh, imp_dbh);
 		return FAILED;
 	}
@@ -612,7 +612,7 @@ dTHR;
 	if (trace_f) fprintf(trace_f,"rollback;begin;\n");
 	if (rtc != PB_OK) {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "dbd_db_rollback:PBIExecute failed.\n");
+			PerlIO_printf(DBILOGFP, "dbd_db_rollback:PBIExecute failed.\n");
 		pb_error(dbh, imp_dbh);
 		return FAILED;
 	}
@@ -689,7 +689,7 @@ short rtc;
 				if (trace_f) fprintf(trace_f,"%s\n", ptr);
 	if (rtc != PB_OK) {
 			if (DBIS->debug > 3) 
-				fprintf(DBILOGFP, "statement_vars:PBIExecute 1 failed.\n");
+				PerlIO_printf(DBILOGFP, "statement_vars:PBIExecute 1 failed.\n");
 			if (declare) {	
 				D_imp_dbh_from_sth;
 				pb_error(sth, imp_dbh);
@@ -710,7 +710,7 @@ short rtc;
 		if (trace_f) fprintf(trace_f,"%s\n", dec);
 		if (rtc != PB_OK) {
 			if (DBIS->debug > 3) 
-				fprintf(DBILOGFP, "statement_vars:PBIExecute 2 failed.\n");
+				PerlIO_printf(DBILOGFP, "statement_vars:PBIExecute 2 failed.\n");
 			if (declare) {	
 				D_imp_dbh_from_sth;
 				pb_error(sth, imp_dbh);
@@ -851,7 +851,7 @@ void *data = NULL;
 
 	if (is_inout) {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "bind_param_inout is not supported.\n");
+			PerlIO_printf(DBILOGFP, "bind_param_inout is not supported.\n");
 			
 		dbi_error(sth, -1, "bind_param_inout is not supported.");
 		return FAILED;
@@ -860,7 +860,7 @@ void *data = NULL;
 	pnum = SvIV(ph_namesv);
 	if ((pnum > imp_sth->parm_cnt) || ! pnum){
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "Paramater number %d is out of range: (1 -> %d).", pnum, imp_sth->parm_cnt);
+			PerlIO_printf(DBILOGFP, "Paramater number %d is out of range: (1 -> %d).", pnum, imp_sth->parm_cnt);
 		dbi_error(sth, -1, "dbd_bind_ph: Paramater number is out of range.");
 		return FAILED;
 	}
@@ -878,16 +878,16 @@ void *data = NULL;
 		
 		idata = SvIV(newvalue);
 		data = &idata;
-/*fprintf(DBILOGFP, "dbd_bind_ph: parm: \"%s\", int value %d.\n", parm, idata); */
+/*PerlIO_printf(DBILOGFP, "dbd_bind_ph: parm: \"%s\", int value %d.\n", parm, idata); */
 	} else  if (SvPOK(newvalue)) {
 		STRLEN len;
 		data = SvPV(newvalue, len);
 		pbtype.type = PB_CHAR;
 		pbtype.len = len;
-/*fprintf(DBILOGFP, "dbd_bind_ph: parm: \"%s\", len = %d string value \"%s\".\n", parm, len, data); */
+/*PerlIO_printf(DBILOGFP, "dbd_bind_ph: parm: \"%s\", len = %d string value \"%s\".\n", parm, len, data); */
 	} else {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "dbd_bind_ph; new value must be an int or a string.\n");
+			PerlIO_printf(DBILOGFP, "dbd_bind_ph; new value must be an int or a string.\n");
 		dbi_error(sth, -1, "dbd_bind_ph; new value must be an int or a string.");
 		return FAILED;
 	}
@@ -897,7 +897,7 @@ void *data = NULL;
 		if (rtc != PB_OK) {
 			D_imp_dbh_from_sth;
 			if (DBIS->debug > 3) 
-				fprintf(DBILOGFP, "dbd_bind_ph:PBIExecute  failed.\n");
+				PerlIO_printf(DBILOGFP, "dbd_bind_ph:PBIExecute  failed.\n");
 			pb_error(sth, imp_dbh);
 			return FAILED;
 		}
@@ -908,7 +908,7 @@ void *data = NULL;
 	if (rtc != PB_OK) {
 		D_imp_dbh_from_sth;
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "dbd_bind_ph:PBIPutValue  failed.\n");
+			PerlIO_printf(DBILOGFP, "dbd_bind_ph:PBIPutValue  failed.\n");
 		pb_error(sth, imp_dbh);
 		return FAILED;
 	}
@@ -921,11 +921,11 @@ void *data = NULL;
 	if (rtc != PB_OK) {
 		D_imp_dbh_from_sth;
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "dbd_bind_ph:PBIPutValue  failed.\n");
+			PerlIO_printf(DBILOGFP, "dbd_bind_ph:PBIPutValue  failed.\n");
 		pb_error(sth, imp_dbh);
 		return FAILED;
 	}
-fprintf(DBILOGFP, "dbd_bind_ph: Set parm: \"%s\"\n", buf);
+PerlIO_printf(DBILOGFP, "dbd_bind_ph: Set parm: \"%s\"\n", buf);
 }	
 #endif
 
@@ -948,7 +948,7 @@ START_TIMER
 	if (rtc != PB_OK) {
 		pb_error_str = "statement_vars:PBIExecute  failed.\n";
 #ifdef DEBUG_IT
-	fprintf(DBILOGFP, "Execution Failed: \"%s\"\n", imp_sth->stmt_text);
+	PerlIO_printf(DBILOGFP, "Execution Failed: \"%s\"\n", imp_sth->stmt_text);
 #endif
 		goto x_error;
 	}
@@ -987,7 +987,7 @@ x_error:
 	{
 	D_imp_dbh_from_sth;
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, pb_error_str);
+			PerlIO_printf(DBILOGFP, pb_error_str);
 		pb_error(sth, imp_dbh);
 	}
 	return FAILED;
@@ -1012,7 +1012,7 @@ char *ptr, *statement = SvPV(sv_statement,len);
     	return (int)rows_effected;
     	
 	if (DBIS->debug > 3) 
-		fprintf(DBILOGFP, "dbd_st_just_doit FAILED\n");
+		PerlIO_printf(DBILOGFP, "dbd_st_just_doit FAILED\n");
 		
 	pb_error(dbh, imp_dbh);
 	return -2;
@@ -1070,7 +1070,7 @@ START_TIMER
 		D_imp_dbh_from_sth;
 		
 		if (DBIS->debug > 2) 
-			fprintf(DBILOGFP, "dbd_st_fetch:PBIFetchRow  failed.\n");
+			PerlIO_printf(DBILOGFP, "dbd_st_fetch:PBIFetchRow  failed.\n");
 			
 		pb_error(sth, imp_dbh);
 		goto error;
@@ -1224,7 +1224,7 @@ x_error:
 	D_imp_dbh_from_sth;
 
 	if (DBIS->debug > 3) 
-		fprintf(DBILOGFP, pb_error_str);
+		PerlIO_printf(DBILOGFP, pb_error_str);
 	pb_error(sth, imp_dbh);
 }
    return FAILED;
@@ -1258,7 +1258,7 @@ START_TIMER
 				if (trace_f) fprintf(trace_f,"%s\n", "commit;");
 				if (rtc != PB_OK) {
 					if (DBIS->debug > 3) 
-						fprintf(DBILOGFP, "dbd_db_STORE_attrib:PBIExecute failed.\n");
+						PerlIO_printf(DBILOGFP, "dbd_db_STORE_attrib:PBIExecute failed.\n");
 					pb_error(dbh, imp_dbh);
 					croak("dbd_db_STORE_attrib:PBIExecute failed.");
 				}
@@ -1270,7 +1270,7 @@ START_TIMER
 				if (trace_f) fprintf(trace_f,"%s\n", "begin;");
 				if (rtc != PB_OK) {
 					if (DBIS->debug > 3) 
-						fprintf(DBILOGFP, "dbd_db_STORE_attrib:PBIExecute failed.\n");
+						PerlIO_printf(DBILOGFP, "dbd_db_STORE_attrib:PBIExecute failed.\n");
 					pb_error(dbh, imp_dbh);
 					croak("dbd_db_STORE_attrib:PBIExecute failed.");
 				}
@@ -1318,7 +1318,7 @@ START_TIMER
 				if (trace_f) fprintf(trace_f,"%s\n", buff);
 			if (rtc != PB_OK) {
 				if (DBIS->debug > 3) 
-					fprintf(DBILOGFP, "dbd_db_STORE_attrib:PBIExecute failed.\n");
+					PerlIO_printf(DBILOGFP, "dbd_db_STORE_attrib:PBIExecute failed.\n");
 				pb_error(dbh, imp_dbh);
 				return FALSE;
 			}
@@ -1483,7 +1483,7 @@ int rtc = FAILED;
 	rtc = PBIExecute(sessid, table_info, PB_NTS, PB_EXECUTE_NOW, NULL, NULL, NULL);
 	if (rtc != PB_OK) {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "dbd_db_login:PBIExecute failed. Could not execute table_info procedure.\n");
+			PerlIO_printf(DBILOGFP, "dbd_db_login:PBIExecute failed. Could not execute table_info procedure.\n");
 		admin_error(dbh, sessid);
 		rtc =  FAILED;
 	} else
@@ -1493,7 +1493,7 @@ int rtc = FAILED;
   	rtc = PBIExecute(sessid, NewPerlDatabase, PB_NTS, PB_EXECUTE_NOW, NULL, NULL, NULL);
 	if (rtc != PB_OK) {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "dbd_db_login:PBIExecute failed. Could not execute NewPerlDatabase  procedure.\n");
+			PerlIO_printf(DBILOGFP, "dbd_db_login:PBIExecute failed. Could not execute NewPerlDatabase  procedure.\n");
 		admin_error(dbh, sessid);
 		rtc =  FAILED;
 	} else
@@ -1519,7 +1519,7 @@ int rtc = FAILED;
 	rtc = PBIExecute(sessid, buf, PB_NTS, PB_EXECUTE_NOW, NULL, NULL, NULL);
 	if (rtc != PB_OK) {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "PrimeBase_create_db:PBIExecute failed. Could not create database: \"%s\".\n", database);
+			PerlIO_printf(DBILOGFP, "PrimeBase_create_db:PBIExecute failed. Could not create database: \"%s\".\n", database);
 		admin_error(dbh, sessid);
 		rtc =  FAILED;
 	} else
@@ -1539,7 +1539,7 @@ int rtc = FAILED;
 	rtc = PBIExecute(sessid, buf, PB_NTS, PB_EXECUTE_NOW, NULL, NULL, NULL);
 	if (rtc != PB_OK) {
 		if (DBIS->debug > 3) 
-			fprintf(DBILOGFP, "PrimeBase_drop_db:PBIExecute failed. Could not drop database: \"%s\".\n", database);
+			PerlIO_printf(DBILOGFP, "PrimeBase_drop_db:PBIExecute failed. Could not drop database: \"%s\".\n", database);
 		admin_error(dbh, sessid);
 		rtc =  FAILED;
 	} else
