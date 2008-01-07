@@ -13,7 +13,7 @@ die qq{  The PRIMEBASEHOME environment variable must be set
   to the installation location of the PrimeBase SDK or data server, 
   or the PrimeBase SDK or data server must be installed in it's 
   default location '/usr/local/primebase'.
-} unless stat("$PB_HOME/lib/libpbvm.so");
+} unless stat("$PB_HOME/lib/libpbapi.a");
 
 ################################################################
 # Get PrimeBase server info.
@@ -94,8 +94,8 @@ system( 'cp t/PrimeBase.env benchmarks/PrimeBase.env');
 ExtUtils::MakeMaker::WriteMakefile(
     'ABSTRACT' => 'A PrimeBase driver for the Perl5 Database Interface (DBI)',
     'AUTHOR' => 'Barry Leslie <Barry.Leslie@PrimeBase.com>',
-    'INC' => '-I$(DBI_INSTARCH_DIR) ',
-    'LIBS' => '-L/usr/local/primebase/lib -lpbvm -lnsl -lm',
+    'INC' => "-I\$(DBI_INSTARCH_DIR) -I$PB_HOME/include ",
+    'LIBS' => "-L$PB_HOME/lib -lpbapi -lm",
     'NAME'	=> 'DBD::PrimeBase',
     'OBJECT' => '$(O_FILES)',
 	'clean' => { 'FILES' => '*.xsi' },
